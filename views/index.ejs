@@ -1,0 +1,28 @@
+const mongoose = require('mongoose');
+const Subscriber = require('./models/Subscriber');
+
+// MongoDB 연결
+mongoose.connect('mongodb://localhost:27017/myapp', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log('Connected to MongoDB');
+})
+.catch((err) => {
+  console.error('Failed to connect to MongoDB', err);
+});
+
+// 새 Subscriber 생성 예제
+const newSubscriber = new Subscriber({
+  name: 'John Doe',
+  email: 'johndoe@example.com',
+});
+
+newSubscriber.save()
+.then((subscriber) => {
+  console.log('New subscriber created:', subscriber);
+})
+.catch((err) => {
+  console.error('Failed to create subscriber', err);
+});
