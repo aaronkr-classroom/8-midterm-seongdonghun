@@ -1,42 +1,31 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const subscribersController = require('./controllers/subscribersController');
+"use strict"
 
-// express 앱 생성
-const app = express();
+const express = require("express"),
+    app = express(),
+    homeCon = require("./controllers/homeController"),
+    errCon = require("./controllers/errorController"),
+    { render } = require("ejs"),
+    layouts = require("express-ejs-layouts");
 
-// 환경 변수 로드
-dotenv.config();
+app.set("port", process.env.PORT || 3000);
+app.set("/", (req, res)=>{
+    res.send("Midterm Test");
+});
+app.set("view engine", "ejs");
 
-// MongoDB 연결
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB 연결 성공'))
-.catch(err => console.error('MongoDB 연결 실패:', err));
-
-// JSON 파싱 미들웨어
+app.use(layouts);
+app.use(express.urlencoded({extended: false}));
 app.use(express.json());
+app.use(express.static('public'));
 
-// 루트 엔드포인트
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+app.get("/", homeCon.showIndex);
+app.get("/transportation", homeCon.showTransportation);
+app.get("/contact", homeCon.showContact);
+app.post("/contact", homeCon.postSignUpForm);
 
-// 구독자 추가 엔드포인트
-app.post('/contact', subscribersController.addSubscriber);
+app.use(errCon.pageNotFoundError);
+app.use(errCon.internalServerError);
 
-// 새로운 라우트 추가
-app.get('/subscribers', subscribersController.getAllSubscribers);
-app.get('/contact', subscribersController.getSubscriptionPage);
-app.post('/subscribe', subscribersController.saveSubscriber);
-
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// app을 다른 파일에서 사용할 수 있도록 내보냅니다.
-module.exports = app;
+app.listen(app.get("port"), () => {
+    console.log(`Server running at http://localhost:${"port"}`);
+})

@@ -1,10 +1,21 @@
-// errorController.js
-exports.notFound = (req, res) => {
-    res.status(404).send('페이지를 찾을 수 없습니다.');
-  };
-  
-  exports.errorHandler = (err, req, res, next) => {
+"use strict";
+
+const httpStatus = require("http-status-codes");
+
+exports.logErrors = (err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('에러가 발생했습니다.');
-  };
-  
+    next(err);
+};
+
+exports.pageNotFoundError = (req, res) => {
+    let errorCode = httpStatus.NOT_FOUND;
+    res.status(errorCode);
+    res.render("error.ejs");
+};
+
+exports.internalServerError = (error, req, res, next) => {
+    let errorCode = httpStatus.INTERNAL_SERVER_ERROR;
+    console.log(`ERROR occurred: ${error.stack}`);
+    res.status(errorCode);
+    res.send(`${errorCode} | Sorry, our application is taking a nap!`);
+};
